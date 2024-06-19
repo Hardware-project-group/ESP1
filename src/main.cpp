@@ -25,6 +25,7 @@ uint8_t fingerId;
 bool passcodeVerified = false;
 String passcode = "";
 String postdata = "id=";
+String postdataIP;
 
 //Door Open System
 int motor1Pin1 = 15; 
@@ -97,8 +98,31 @@ void handleFingerprint() {
   lcd.print("Enter the passcode");
 }
 
+void sendIp(String ip){
+    http.begin("http://10.13.127.54/TestEsp/SendIp.php");
+    http.addHeader("Content-Type", "application/x-www-form-urlencoded");
+    postdataIP = "Board=ESP1&ip=" + ip;
+    int httpResponseCode = http.POST(postdataIP);
+    Serial.println("IpSend Statues: ");
+    Serial.println(httpResponseCode);
+    http.end();
+}
 
-
+void OpenDoor(){
+  Serial.println("Handling fingerprint request...");
+  server.sendHeader("Access-Control-Allow-Origin", "*");
+  server.sendHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+  server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+  if (server.hasArg("id")) {
+    String id = server.arg("id");
+    Serial.print("Received id: ");
+    Serial.println(id);
+    Door(); // Function to open the door
+    server.send(200, "text/plain", "Door opened successfully");
+  } else {
+    server.send(400, "text/plain", "Invalid request");
+  }
+}
 
 void setup() {
   Serial.begin(9600);
@@ -152,9 +176,11 @@ void setup() {
 
 
   server.on("/enroll", HTTP_POST, handleFingerprint);
+  server.on("/doorOpen",HTTP_POST, OpenDoor);
   server.begin();
-  Serial.println(WiFi.localIP());
-
+  IPAddress ip = WiFi.localIP();
+  String ipString = ip.toString();
+  sendIp(ipString);
 }
 
 

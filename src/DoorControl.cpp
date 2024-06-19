@@ -2,6 +2,7 @@
 #include <driver/ledc.h>  
 #include "DoorControl.h"
 #include "Display.h"
+#include "wifi_setup.h"
 
 
 void Door() {
