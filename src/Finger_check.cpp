@@ -1,16 +1,18 @@
 #include <Arduino.h>
 #include <Adafruit_Fingerprint.h>
 #include <HTTPClient.h>
+#include <ArduinoJson.h>
 
 #include "DoorControl.h"
 #include "Finger_check.h"
 #include "wifi_setup.h"
 #include "Display.h"
 
-const char* serverAddress = "http://192.168.137.1/TestEsp/sendaccess.php";
+const char* serverAddress = "http://192.168.137.1:5000/insert-access-detail";
 String postData = "id=";
 String payload = "";
-int httpCode; 
+int httpCode;
+int accessId;
 
 uint8_t getFingerprintID()
 {
@@ -122,13 +124,12 @@ uint8_t getFingerprintID()
     lcd.print("Found ID #");
     Serial.print(finger.fingerID);
     lcd.print(finger.fingerID);
-    Door();
     
     HTTPClient http;
     http.begin(serverAddress);
     http.addHeader("Content-Type", "application/x-www-form-urlencoded");
     postData = postData + String(finger.fingerID);
-     Serial.println(postData);
+    Serial.println(postData);
     httpCode = http.POST(postData);
     payload = http.getString(); 
     Serial.print("httpCode : ");
@@ -137,6 +138,25 @@ uint8_t getFingerprintID()
     Serial.println(payload);  //--> Print request response payload
     http.end();
     postData = "id=";
+    if (httpCode == HTTP_CODE_OK) {
+        DynamicJsonDocument doc(1024);
+        DeserializationError error = deserializeJson(doc, payload);
+
+        if (error) {
+            Serial.print("JSON deserialization failed: ");
+            Serial.println(error.f_str());
+        }
+        if (doc.containsKey("accessId")) {
+            accessId = doc["accessId"];
+            Serial.print("accessId: ");
+            Serial.println(accessId);
+        } else {
+            Serial.println("accessId not found in response");
+        }
+    } else {
+        Serial.println("Failed to get a valid response from server");
+    }
+    Door(accessId);
     delay(5000);
     Serial.println(" with confidence of ");
     Serial.println(finger.confidence);
@@ -164,7 +184,6 @@ int getFingerprintIDez()
     Serial.print(finger.fingerID);
     lcd.print("Found ID #");
     lcd.print(finger.fingerID);
-    Door();
     
     HTTPClient http;
     http.begin(serverAddress);
@@ -179,6 +198,25 @@ int getFingerprintIDez()
     Serial.println(payload);  //--> Print request response payload
     http.end();
     postData = "id=";
+    Door(accessId);
+     if (httpCode == HTTP_CODE_OK) {
+        DynamicJsonDocument doc(1024);
+        DeserializationError error = deserializeJson(doc, payload);
+
+        if (error) {
+            Serial.print("JSON deserialization failed: ");
+            Serial.println(error.f_str());
+        }
+        if (doc.containsKey("accessId")) {
+            accessId = doc["accessId"];
+            Serial.print("accessId: ");
+            Serial.println(accessId);
+        } else {
+            Serial.println("accessId not found in response");
+        }
+    } else {
+        Serial.println("Failed to get a valid response from server");
+    }
     delay(5000);
     Serial.println(" with confidence of ");
     Serial.print(finger.confidence);

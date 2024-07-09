@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <Adafruit_Fingerprint.h>
 #include "enroll.h"
+#include "Display.h"
 
 
 uint8_t getFingerprintEnroll(uint8_t fingerId)
@@ -8,8 +9,11 @@ uint8_t getFingerprintEnroll(uint8_t fingerId)
 
 
   int p = -1;
+  lcd.clear();
   Serial.print("Waiting for valid finger to enroll as #");
   Serial.println(fingerId);
+  lcd.print("Waiting for valid finger to enroll as #");
+  lcd.println(fingerId);
   while (p != FINGERPRINT_OK)
   {
     p = finger.getImage();
@@ -22,13 +26,19 @@ uint8_t getFingerprintEnroll(uint8_t fingerId)
       Serial.println(".");
       break;
     case FINGERPRINT_PACKETRECIEVEERR:
+      lcd.clear();
       Serial.println("Communication error");
+      lcd.println("Communication error");
       break;
     case FINGERPRINT_IMAGEFAIL:
+      lcd.clear();
       Serial.println("Imaging error");
+      lcd.println("Imaging error");
       break;
     default:
       Serial.println("Unknown error");
+      lcd.clear();
+      lcd.println("Unknown error");
       break;
     }
     delay(100);
@@ -44,12 +54,18 @@ uint8_t getFingerprintEnroll(uint8_t fingerId)
     break;
   case FINGERPRINT_IMAGEMESS:
     Serial.println("Image too messy");
+    lcd.clear();
+    lcd.println("Image too messy");
     return p;
   case FINGERPRINT_PACKETRECIEVEERR:
     Serial.println("Communication error");
+    lcd.clear();
+    lcd.println("Communication error");
     return p;
   case FINGERPRINT_FEATUREFAIL:
     Serial.println("Could not find fingerprint features");
+    lcd.clear();
+    lcd.println("Could not find fingerprint features");
     return p;
   case FINGERPRINT_INVALIDIMAGE:
     Serial.println("Could not find fingerprint features");
@@ -61,6 +77,8 @@ uint8_t getFingerprintEnroll(uint8_t fingerId)
   delay(10);
 
   Serial.println("Remove finger");
+  lcd.clear();
+  lcd.println("Remove finger");
   delay(200);
   p = 0;
   while (p != FINGERPRINT_NOFINGER)
@@ -71,6 +89,8 @@ uint8_t getFingerprintEnroll(uint8_t fingerId)
   Serial.println(fingerId);
   p = -1;
   Serial.println("Place same finger again");
+  lcd.clear();
+  lcd.println("Place same finger again");
   while (p != FINGERPRINT_OK)
   {
     p = finger.getImage();
@@ -84,9 +104,13 @@ uint8_t getFingerprintEnroll(uint8_t fingerId)
       break;
     case FINGERPRINT_PACKETRECIEVEERR:
       Serial.println("Communication error");
+      lcd.clear();
+      lcd.println("Communication error");
       break;
     case FINGERPRINT_IMAGEFAIL:
       Serial.println("Imaging error");
+      lcd.clear();
+      lcd.println("Imaging error");
       break;
     default:
       Serial.println("Unknown error");
@@ -111,9 +135,13 @@ uint8_t getFingerprintEnroll(uint8_t fingerId)
     return p;
   case FINGERPRINT_FEATUREFAIL:
     Serial.println("Could not find fingerprint features");
+    lcd.clear();
+    lcd.println("Could not find fingerprint features");
     return p;
   case FINGERPRINT_INVALIDIMAGE:
     Serial.println("Could not find fingerprint features");
+    lcd.clear();
+    lcd.println("Could not find fingerprint features");
     return p;
   default:
     Serial.println("Unknown error");
@@ -132,11 +160,20 @@ uint8_t getFingerprintEnroll(uint8_t fingerId)
   else if (p == FINGERPRINT_PACKETRECIEVEERR)
   {
     Serial.println("Communication error");
+    lcd.clear();
+    lcd.println("Communication error");
     return p;
   }
   else if (p == FINGERPRINT_ENROLLMISMATCH)
   {
     Serial.println("Fingerprints did not match");
+    lcd.clear();
+    lcd.println("Fingerprints did not match");
+    delay(1000);
+    lcd.clear();
+    lcd.println("Ready to enroll again!");
+    delay(1000);
+
     return p;
   }
   else
@@ -151,6 +188,8 @@ uint8_t getFingerprintEnroll(uint8_t fingerId)
   if (p == FINGERPRINT_OK)
   {
     Serial.println("Stored!");
+    lcd.clear();
+    Serial.println("Success!");
   }
   else if (p == FINGERPRINT_PACKETRECIEVEERR)
   {
