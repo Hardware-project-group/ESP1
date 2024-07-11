@@ -41,6 +41,8 @@ String header;
 int motor1Pin1 = 15; 
 int motor1Pin2 = 2; 
 int enable1Pin = 4;
+
+//door sensor
 int doorsensor = 13;
 int doorsensor1 = 18;
 
@@ -85,6 +87,7 @@ void getTime(){
     Serial.println("RTC lost power, setting the time!");
     rtc.adjust(DateTime(__DATE__, __TIME__));
   }
+  //rtc.adjust(DateTime(2024, 7, 10, 19, 50, 0));
   // Print current date and time
   DateTime now = rtc.now();
   sprintf(dateBuffer, "%04d-%02d-%02d %02d:%02d:%02d", now.year(), now.month(), now.day(), now.hour(), now.minute(), now.second());
@@ -239,6 +242,7 @@ void setup() {
   pinMode(motor1Pin1, OUTPUT);
   pinMode(motor1Pin2, OUTPUT); 
   pinMode(enable1Pin, OUTPUT);
+  //intialize door sensor pins
   pinMode(doorsensor, INPUT_PULLUP);
   pinMode(doorsensor1, INPUT_PULLUP);
 

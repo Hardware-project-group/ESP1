@@ -128,16 +128,14 @@ uint8_t getFingerprintID()
     HTTPClient http;
     http.begin(serverAddress);
     http.addHeader("Content-Type", "application/x-www-form-urlencoded");
-    postData = postData + String(finger.fingerID);
-    Serial.println(postData);
-    httpCode = http.POST(postData);
+    httpCode = http.POST("id=" + String(finger.fingerID));
+    Serial.println("id=" + String(finger.fingerID));
     payload = http.getString(); 
     Serial.print("httpCode : ");
     Serial.println(httpCode); //--> Print HTTP return code
     Serial.print("payload  : ");
     Serial.println(payload);  //--> Print request response payload
     http.end();
-    postData = "id=";
     if (httpCode == HTTP_CODE_OK) {
         DynamicJsonDocument doc(1024);
         DeserializationError error = deserializeJson(doc, payload);
@@ -188,9 +186,7 @@ int getFingerprintIDez()
     HTTPClient http;
     http.begin(serverAddress);
     http.addHeader("Content-Type", "application/x-www-form-urlencoded");
-    postData = postData + String(finger.fingerID);
-    Serial.println(postData);
-    httpCode = http.POST(postData);
+    httpCode = http.POST("id=" + String(finger.fingerID));
     payload = http.getString(); 
     Serial.print("httpCode : ");
     Serial.println(httpCode); //--> Print HTTP return code
